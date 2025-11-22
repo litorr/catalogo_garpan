@@ -1,0 +1,484 @@
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    background: white;
+    background-size: 400% 400%;
+    animation: gradientShift 12s ease infinite;
+    position: relative;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 170, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(217, 119, 6, 0.15) 0%, transparent 50%);
+    animation: shimmer 5s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 100% 50%; }
+    50% { background-position: 100% 100%; }
+    75% { background-position: 0% 100%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+    0% { opacity: 0.3; transform: scale(1); }
+    100% { opacity: 0.6; transform: scale(1.05); }
+}
+
+/* ===== HEADER ===== */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo img {
+    width: 80px;
+}
+
+.modo-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.modo-btn {
+    background: #f3bf3d;
+    border: 2px solid #0649d9;
+    color: #d97706;
+    padding: 0.4rem 1rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modo-btn.active,
+.modo-btn:hover {
+    background: #d97706;
+    color: #fff;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.cat-btn {
+    background: #1f67c5;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+    color: white;
+}
+
+.cat-btn:hover {
+    background: #0a2892;
+    color: #fff;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: #333;
+    margin: 3px 0;
+    transition: 0.3s;
+}
+
+
+/* ===== SECCIONES ===== */
+section {
+    padding: 3rem 1rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+#titulo-filtro {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    color: #32a1fc;
+    
+}
+
+/* ===== GRID ===== */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+}
+
+/* ===== CARD ===== */
+.product-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+    border: solid 3px rgb(88, 158, 250);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-title {
+    font-size: 1rem;
+    padding: 0.6rem 1rem 0.2rem;
+    margin: 0;
+    color: #ffffff;
+    text-align: center;
+    background-color: rgb(44, 112, 202);
+}
+
+.product-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    background: #fafafa;
+    padding: 0rem;
+    
+}
+
+.product-info {
+    padding: 0.6rem 1rem 1rem;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-desc {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 0.3rem;
+}
+
+.product-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #d97706;
+    margin-bottom: 0.6rem;
+}
+
+.product-promo {
+    font-size: 0.75rem;
+    color: #28a745;
+    margin-bottom: 0.6rem;
+}
+
+.product-info button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.product-info button:hover {
+    background: #005fcc;
+}
+
+/* ===== CONTACTO ===== */
+.contact-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+
+#contacto form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    width: 100%;
+}
+
+#contacto input, #contacto textarea {
+    margin-bottom: 1rem;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+#contacto button {
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.company-info-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.8rem;
+    color: #777;
+    background: #fff;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        width: 200px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+
+    nav ul.active {
+        display: flex;
+    }
+
+    #hero h1 {
+        font-size: 2rem;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* ===== HERO ===== */
+/* style.css */
+
+/* ===== SECCIONES ===== */
+/* La regla 'section' limita a max-width: 1200px y añade margin: auto, lo cual debe anularse para #hero */
+section {
+    padding: 3rem 1rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* ===== HERO SECTION ===== */
+#hero {
+    background-image: url('hero.png');
+    
+    /* CAMBIO CLAVE 1: Para que la sección ocupe el ancho completo de la página */
+    max-width: none; /* Anula la limitación de 1200px del selector 'section' */
+    width: 100%;
+    margin: 0; /* Anula el 'margin: auto' de 'section' para que no se centre */
+    padding: 3rem 0; /* Anula el padding lateral, pero mantiene el vertical (ajusta '3rem' si es necesario) */
+    /* CAMBIO CLAVE 2: Para que la imagen de fondo cubra toda el área del hero */
+    background-size: cover; /* Cambia de 'contain' a 'cover' para que cubra todo el área */
+    
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+#hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.01); /* overlay suave */
+    z-index: 1;
+}
+
+#hero h1, #hero p, .search-container {
+    position: relative;
+    z-index: 2;
+}
+
+#hero h1 {
+    font-size: 3.6rem;
+    margin-bottom: 1rem;
+    color: #148afd;
+}
+
+#hero p {
+    font-size: 1.5rem;
+    color: #148afd;
+}
+
+.search-container {
+    position: relative;
+    margin-top: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+}
+
+#search-bar {
+    width: 100%;
+    padding: 0.8rem 0.8rem 0.8rem 2.5rem;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #f3bf3d;
+    font-size: 1.2rem;
+}
+
+.modo-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: 500;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #d97706;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Nuevo estilo para el selector de modo (Al Detal / Al Mayor) */
+.modo-selector {
+    display: flex;
+    /* Usa el color amarillo de tu tema como borde principal */
+    border: 3px solid #3d95f3; 
+    border-radius: 25px; /* Bordes redondeados para el contenedor */
+    overflow: hidden; 
+    margin-right: 1.5rem; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modo-btn {
+    /* Estilos base del botón */
+    background-color: transparent;
+    color: #206daf; /* Texto amarillo cuando está inactivo */
+    border: none;
+    padding: 0.5rem 1rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    flex-grow: 1; 
+}
+
+.modo-btn:hover:not(.active) {
+    background-color: rgba(243, 191, 61, 0.2); /* Efecto hover sutil */
+}
+
+/* Estilo del botón activo */
+.modo-btn.active {
+    background-color: #3d95f3; /* Fondo amarillo cuando está activo */
+    color: #1a1a1a; /* Texto oscuro cuando está activo */
+    font-weight: 700;
+}

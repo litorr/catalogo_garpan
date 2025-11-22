@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GARPAN - Catálogo</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="logo.png">
+</head>
+<body>
+    <header>
+        <div class="logo"><a href="#"><img src="logo.png" alt="Logo GARPAN"></a></div>
+
+      <div class="modo-selector">
+    <button id="btn-detal" class="modo-btn active" onclick="setModo('detal')">Al Detal</button>
+    <button id="btn-mayor" class="modo-btn" onclick="setModo('mayor')">Al Mayor</button>
+</div>
+
+       <nav>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    <ul id="nav-menu">
+        <li><button class="cat-btn" onclick="filterCategory('todos')">Todos</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('reposteria')">Repostería</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('confiteria')">Confitería</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('helados')">Helados</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('miscelaneos')">Misceláneos</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('plasticos')">Plásticos</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('frutos')">Frutos Secos</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('esencias')">Esencias</button></li>
+        <li><button class="cat-btn" onclick="filterCategory('bebidas')">Bebidas</button></li>
+        <li><button class="cat-btn" onclick="scrollToSection('mas-vendidos')">Más Vendidos</button></li>
+        <li><button class="cat-btn" onclick="scrollToSection('contacto')">Contacto</button></li>
+    </ul>
+</nav>
+    </header>
+
+    <section id="hero">
+        <h1>CATÁLOGO DE GARPAN</h1>
+        <p>Descubre nuestros productos</p>
+         <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Buscar productos...">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+    </section>
+
+    <section id="todos-los-productos">
+        <h2 id="titulo-filtro">Todos los Productos</h2>
+        <div class="products-grid" id="products-grid"></div>
+    </section>
+
+    <section id="mas-vendidos">
+        <h2>Productos Más Vendidos</h2>
+        <div class="products-grid" id="bestsellers-grid"></div>
+    </section>
+
+    <section id="contacto">
+        <h2>Contacto WhatsApp</h2>
+        <div class="contact-content">
+            <form onsubmit="event.preventDefault(); sendContactMessage();">
+                <input type="text" id="contact-name" placeholder="Tu Nombre" required>
+                <textarea id="contact-message" placeholder="Tu Mensaje" required></textarea>
+                <button type="submit">Enviar Mensaje por WhatsApp</button>
+            </form>
+            <div class="company-info-card">
+                <h3>Información de GARPAN</h3>
+                <p><strong>Ubicación:</strong><br>Avenida Principal, Local #123</p>
+                <p><strong>Horario:</strong><br>Lunes a Viernes: 8:00 AM - 5:00 PM</p>
+                <p><strong>Teléfono:</strong><br>+58 414-1914478</p>
+                <p><strong>Email:</strong><br>info@garpan.com</p>
+                <p class="slogan"><em>¡Calidad y servicio garantizado!</em></p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 GARPAN. Hecho por Carlos Ramirez - litoramirez2005@gmail.com</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

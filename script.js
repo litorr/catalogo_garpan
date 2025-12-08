@@ -36,7 +36,7 @@ const products = [
     { id: 30, title: 'GELATINA PIÑA', description: '1KG', price: '$12.00', image: 'productos/2.png', categoria: 'helados' },
 
     // MISCELANEOS
-    { id: 31, title: 'ACEITE COPOSA', description: '12UX850ML', price: '$38.50', image: 'productos/2.png', categoria: 'miscelaneos', promo: 'A partir de 500 cajas: 2% adicional' },
+    { id: 31, title: 'ACEITE COPOSA', description: '12UX850ML', price: '$38.50', image: 'productos/2.png', categoria: 'miscelaneos' },
     { id: 32, title: 'SAL REFINADA', description: '1KG', price: '$1.80', image: 'productos/2.png', categoria: 'miscelaneos' },
     { id: 33, title: 'AZÚCAR REFINADA', description: '1KG', price: '$2.20', image: 'productos/2.png', categoria: 'miscelaneos' },
     { id: 34, title: 'VINAGRE BLANCO', description: '1L', price: '$2.50', image: 'productos/2.png', categoria: 'miscelaneos' },
@@ -97,7 +97,11 @@ const products = [
 ];
 
 const bestsellers = products.slice(0, 6);
+let cart = [];
+let modo = 'detal';
+let mayoristaValidated = false;
 
+// ===== PRODUCT CARDS =====
 function generateCards(containerId, productList) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
@@ -111,7 +115,7 @@ function generateCards(containerId, productList) {
                 <p class="product-desc">${p.description}</p>
                 <p class="product-price">${p.price}</p>
                 ${p.promo ? `<p class="product-promo">${p.promo}</p>` : ''}
-                <button onclick="buyProduct(${p.id})">Comprar por WhatsApp</button>
+                <button onclick="addToCart(${p.id})">Agregar al Carrito</button>
             </div>
         `;
         container.appendChild(card);
@@ -126,12 +130,172 @@ function filterCategory(categoria) {
     document.getElementById('todos-los-productos').scrollIntoView({ behavior: 'smooth' });
 }
 
-function buyProduct(id) {
-    const p = products.find(x => x.id === id);
-    const msg = `Hola, quiero ${p.title} - ${p.description} - ${p.price}`;
-    window.open(`https://wa.me/584141914478?text=${encodeURIComponent(msg)}`, '_blank');
+// ===== CART LOGIC =====
+function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    const existingItem = cart.find(item => item.id === id);
+
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+    updateCartUI();
+    toggleCart(true);
 }
 
+function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    updateCartUI();
+}
+
+function updateQuantity(id, change) {
+    const item = cart.find(item => item.id === id);
+    if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+            removeFromCart(id);
+        } else {
+            updateCartUI();
+        }
+    }
+}
+
+function toggleCart(forceOpen = null) {
+    const modal = document.getElementById('cart-modal');
+    if (forceOpen === true) {
+        modal.classList.add('active');
+    } else if (forceOpen === false) {
+        modal.classList.remove('active');
+    } else {
+        modal.classList.toggle('active');
+    }
+}
+
+function updateCartUI() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartCount = document.getElementById('cart-count');
+    const cartTotalPrice = document.getElementById('cart-total-price');
+
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    cartCount.textContent = totalItems;
+
+    cartItemsContainer.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<p style="text-align:center; color:#888;">Tu carrito está vacío</p>';
+    } else {
+        cart.forEach(item => {
+            const price = parseFloat(item.price.replace('$', ''));
+            const itemTotal = price * item.quantity;
+            total += itemTotal;
+
+            const itemEl = document.createElement('div');
+            itemEl.className = 'cart-item';
+            itemEl.innerHTML = `
+                <img src="${item.image}" alt="${item.title}">
+                <div class="cart-item-details">
+                    <div class="cart-item-title">${item.title}</div>
+                    <div class="cart-item-price">${item.price}</div>
+                    <div class="cart-item-controls">
+                        <button class="cart-btn-qty" onclick="updateQuantity(${item.id}, -1)">-</button>
+                        <span class="cart-qty">${item.quantity}</span>
+                        <button class="cart-btn-qty" onclick="updateQuantity(${item.id}, 1)">+</button>
+                    </div>
+                </div>
+                <i class="fas fa-trash cart-remove" onclick="removeFromCart(${item.id})"></i>
+            `;
+            cartItemsContainer.appendChild(itemEl);
+        });
+    }
+
+    cartTotalPrice.textContent = `$${total.toFixed(2)}`;
+}
+
+function checkout() {
+    if (cart.length === 0) return alert('Tu carrito está vacío');
+
+    let message = "Hola, quiero realizar el siguiente pedido:\\n\\n";
+    let total = 0;
+
+    cart.forEach(item => {
+        const price = parseFloat(item.price.replace('$', ''));
+        const itemTotal = price * item.quantity;
+        total += itemTotal;
+        message += `- ${item.quantity}x ${item.title} (${item.description}) - $${itemTotal.toFixed(2)}\\n`;
+    });
+
+    message += `\\n*Total: $${total.toFixed(2)}*`;
+    window.open(`https://wa.me/584141914478?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+// ===== MAYORISTA LOGIC =====
+function setModo(nuevoModo) {
+    if (nuevoModo === 'mayor' && !mayoristaValidated) {
+        showMayoristaModal();
+        return;
+    }
+
+    modo = nuevoModo;
+    document.getElementById('btn-detal').classList.toggle('active', modo === 'detal');
+    document.getElementById('btn-mayor').classList.toggle('active', modo === 'mayor');
+    filterCategory('todos');
+}
+
+function showMayoristaModal() {
+    const modal = document.getElementById('mayorista-modal');
+    modal.classList.add('active');
+    document.getElementById('mayorista-code').value = '';
+    document.getElementById('mayorista-error').textContent = '';
+    setTimeout(() => document.getElementById('mayorista-code').focus(), 100);
+}
+
+function closeMayoristaModal() {
+    document.getElementById('mayorista-modal').classList.remove('active');
+    if (!mayoristaValidated) {
+        document.getElementById('btn-detal').classList.add('active');
+        document.getElementById('btn-mayor').classList.remove('active');
+        modo = 'detal';
+    }
+}
+
+function validateMayoristaCode() {
+    const code = document.getElementById('mayorista-code').value.trim();
+    const errorMsg = document.getElementById('mayorista-error');
+
+    if (code === 'GARPAN2026') {
+        mayoristaValidated = true;
+        closeMayoristaModal();
+        modo = 'mayor';
+        document.getElementById('btn-detal').classList.remove('active');
+        document.getElementById('btn-mayor').classList.add('active');
+        filterCategory('todos');
+        alert('✓ Código validado correctamente. Ahora puede ver precios al mayor.');
+    } else {
+        errorMsg.textContent = '✗ Código incorrecto. Intente nuevamente.';
+        document.getElementById('mayorista-code').value = '';
+        document.getElementById('mayorista-code').focus();
+    }
+}
+
+// ===== DROPDOWN LOGIC =====
+function toggleDropdown() {
+    const dropdown = document.querySelector('.dropdown');
+    dropdown.classList.toggle('active');
+}
+
+// Close dropdown when clicking outside
+window.addEventListener('click', (e) => {
+    if (!e.target.matches('.dropdown-toggle') && !e.target.closest('.dropdown-menu')) {
+        const dropdown = document.querySelector('.dropdown');
+        if (dropdown && dropdown.classList.contains('active')) {
+            dropdown.classList.remove('active');
+        }
+    }
+});
+
+// ===== OTHER =====
 function sendContactMessage() {
     const name = document.getElementById('contact-name').value.trim();
     const message = document.getElementById('contact-message').value.trim();
@@ -140,48 +304,43 @@ function sendContactMessage() {
     window.open(`https://wa.me/584141914478?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-// Menú hamburguesa
-const hamburger = document.getElementById('hamburger');
-const navMenu = document.getElementById('nav-menu');
-hamburger.addEventListener('click', () => navMenu.classList.toggle('active'));
-
-// Cargar todos al inicio
-window.addEventListener('DOMContentLoaded', () => {
-    generateCards('products-grid', products);
-    generateCards('bestsellers-grid', bestsellers);
-});
-
-
-let modo = 'detal'; // 'detal' o 'mayor'
-
-function setModo(nuevoModo) {
-    modo = nuevoModo;
-    document.getElementById('btn-detal').classList.toggle('active', modo === 'detal');
-    document.getElementById('btn-mayor').classList.toggle('active', modo === 'mayor');
-    // Aquí puedes aplicar lógica para cambiar precios si tienes dos listas
-    filterCategory('todos'); // Recarga con el modo activo
-}
-
 function scrollToSection(id) {
     document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 }
 
-// Buscador
+// Hamburger menu
+const hamburger = document.getElementById('hamburger');
+const navMenu = document.getElementById('nav-menu');
+if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => navMenu.classList.toggle('active'));
+}
+
+// Search bar
 const searchBar = document.getElementById('search-bar');
-searchBar.addEventListener('input', () => {
-    const query = searchBar.value.toLowerCase();
-    const filtrados = products.filter(p =>
-        p.title.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query)
-    );
-    generateCards('products-grid', filtrados);
-    document.getElementById('titulo-filtro').textContent = 'Resultados de búsqueda';
+if (searchBar) {
+    searchBar.addEventListener('input', () => {
+        const query = searchBar.value.toLowerCase();
+        const filtrados = products.filter(p =>
+            p.title.toLowerCase().includes(query) ||
+            p.description.toLowerCase().includes(query)
+        );
+        generateCards('products-grid', filtrados);
+        document.getElementById('titulo-filtro').textContent = 'Resultados de búsqueda';
+    });
+}
+
+// Permitir Enter para validar mayorista code
+document.addEventListener('DOMContentLoaded', () => {
+    const codeInput = document.getElementById('mayorista-code');
+    if (codeInput) {
+        codeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') validateMayoristaCode();
+        });
+    }
 });
 
-// Toggle modo
-function toggleModo() {
-    const esMayor = document.getElementById('modo-toggle').checked;
-    // Aquí puedes cambiar lógica de precios si tienes dos listas
-    console.log(esMayor ? 'Modo: Al Mayor' : 'Modo: Al Detal');
-    filterCategory('todos'); // Recarga con modo activo
-}
+// Load initial content
+window.addEventListener('DOMContentLoaded', () => {
+    generateCards('products-grid', products);
+    generateCards('bestsellers-grid', bestsellers);
+});

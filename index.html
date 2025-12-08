@@ -1,48 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GARPAN - Catálogo</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="logo.png">
 </head>
+
 <body>
     <header>
         <div class="logo"><a href="#"><img src="logo.png" alt="Logo GARPAN"></a></div>
 
-      <div class="modo-selector">
-    <button id="btn-detal" class="modo-btn active" onclick="setModo('detal')">Al Detal</button>
-    <button id="btn-mayor" class="modo-btn" onclick="setModo('mayor')">Al Mayor</button>
-</div>
+        <nav>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
 
-       <nav>
-    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
-    <ul id="nav-menu">
-        <li><button class="cat-btn" onclick="filterCategory('todos')">Todos</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('reposteria')">Repostería</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('confiteria')">Confitería</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('helados')">Helados</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('miscelaneos')">Misceláneos</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('plasticos')">Plásticos</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('frutos')">Frutos Secos</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('esencias')">Esencias</button></li>
-        <li><button class="cat-btn" onclick="filterCategory('bebidas')">Bebidas</button></li>
-        <li><button class="cat-btn" onclick="scrollToSection('mas-vendidos')">Más Vendidos</button></li>
-        <li><button class="cat-btn" onclick="scrollToSection('contacto')">Contacto</button></li>
-    </ul>
-</nav>
+            <div id="nav-menu" class="nav-menu">
+                <div class="controls-container">
+                    <div class="modo-selector">
+                        <button id="btn-detal" class="modo-btn active" onclick="setModo('detal')">Al Detal</button>
+                        <button id="btn-mayor" class="modo-btn" onclick="setModo('mayor')">Al Mayor</button>
+                    </div>
+
+                    <div class="cart-icon-container" onclick="toggleCart()">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </div>
+                </div>
+
+                <ul class="nav-links">
+                    <li class="dropdown">
+                        <button class="nav-btn dropdown-toggle" onclick="toggleDropdown()">
+                            Categorías <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="category-dropdown">
+                            <button class="dropdown-item" onclick="filterCategory('todos')">Todos</button>
+                            <button class="dropdown-item" onclick="filterCategory('reposteria')">Repostería</button>
+                            <button class="dropdown-item" onclick="filterCategory('confiteria')">Confitería</button>
+                            <button class="dropdown-item" onclick="filterCategory('helados')">Helados</button>
+                            <button class="dropdown-item" onclick="filterCategory('miscelaneos')">Misceláneos</button>
+                            <button class="dropdown-item" onclick="filterCategory('plasticos')">Plásticos</button>
+                            <button class="dropdown-item" onclick="filterCategory('frutos')">Frutos Secos</button>
+                            <button class="dropdown-item" onclick="filterCategory('esencias')">Esencias</button>
+                            <button class="dropdown-item" onclick="filterCategory('bebidas')">Bebidas</button>
+                        </div>
+                    </li>
+                    <li><button class="nav-btn" onclick="scrollToSection('mas-vendidos')">Más Vendidos</button></li>
+                    <li><button class="nav-btn" onclick="scrollToSection('contacto')">Contacto</button></li>
+                </ul>
+            </div>
+        </nav>
     </header>
 
     <section id="hero">
         <h1>CATÁLOGO DE GARPAN</h1>
         <p>Descubre nuestros productos</p>
-         <div class="search-container">
-        <input type="text" id="search-bar" placeholder="Buscar productos...">
-        <i class="fas fa-search search-icon"></i>
-    </div>
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Buscar productos...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
     </section>
 
     <section id="todos-los-productos">
@@ -78,6 +98,37 @@
         <p>&copy; 2025 GARPAN. Hecho por Carlos Ramirez - litoramirez2005@gmail.com</p>
     </footer>
 
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <span class="close-cart" onclick="toggleCart()">&times;</span>
+            <h2>Tu Carrito</h2>
+            <div id="cart-items" class="cart-items">
+                <p>Tu carrito está vacío</p>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">Total: <span id="cart-total-price">$0.00</span></div>
+                <button class="checkout-btn" onclick="checkout()">Comprar por WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mayorista Code Modal -->
+    <div id="mayorista-modal" class="mayorista-modal">
+        <div class="mayorista-content">
+            <span class="close-mayorista" onclick="closeMayoristaModal()">&times;</span>
+            <h2>Acceso a Precios por Mayor</h2>
+            <p>Para ver los precios al mayor, ingrese el código de mayorista:</p>
+            <input type="text" id="mayorista-code" placeholder="Código de mayorista" maxlength="20">
+            <div class="mayorista-buttons">
+                <button onclick="validateMayoristaCode()">Validar</button>
+                <button onclick="closeMayoristaModal()" class="cancel-btn">Cancelar</button>
+            </div>
+            <p id="mayorista-error" class="error-message"></p>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
+
 </html>

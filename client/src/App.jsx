@@ -89,6 +89,10 @@ function App() {
     }).filter(Boolean));
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   const handleModeChange = (mode) => {
     if (mode === 'mayor' && !isWholesale) setIsSeniatOpen(true);
     else if (mode === 'detal') {
@@ -154,6 +158,7 @@ function App() {
         cartItems={cart}
         onRemove={removeFromCart}
         onUpdateQuantity={updateQuantity}
+        onClearCart={clearCart} 
       />
     </div>
   );

@@ -1,53 +1,69 @@
+require('dotenv').config(); // Cargar variables de entorno
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const connectDB = require('./config/db');
 
-// Importamos tus módulos
-const { iniciarSesionSeniat, consultarRif } = require('./seniatService');
-const { products } = require('./productsData');
+// Importar Modelos
+const Product = require('./models/Product');
+const Order = require('./models/Order');
 
+// Iniciar App y DB
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-// Middlewares
-app.use(cors()); // Permite que React (puerto 5173/3000) hable con Node (puerto 3001)
-app.use(bodyParser.json());
+// Conectar a la Base de Datos
+connectDB();
 
-// --- RUTA 1: Obtener Productos ---
-app.get('/api/products', (req, res) => {
-    // Aquí simulamos una base de datos.
-    // En el futuro, aquí harías: await Product.find({}) con MongoDB
-    res.json(products);
+app.use(cors());
+app.use(express.json());
+
+// --- RUTAS API ---
+
+// 1. Obtener Productos (Desde MongoDB)
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find({});
+    // Formateamos el precio para el frontend (añadir $) si lo guardaste como número
+    const formattedProducts = products.map(p => ({
+      ...p._doc,
+      id: p._id, // React prefiere 'id' simple
+      price: `$${p.price.toFixed(2)}` // Convertir 10.5 -> "$10.50"
+    }));
+    res.json(formattedProducts);
+  } catch (error) {
+    res.status(500).json({ message: 'Error obteniendo productos' });
+  }
 });
 
-// --- RUTA 2: Iniciar SENIAT (Obtener Captcha) ---
-app.get('/api/seniat/captcha', async (req, res) => {
-    try {
-        console.log("Solicitando Captcha al SENIAT...");
-        const img = await iniciarSesionSeniat();
-        res.json({ success: true, image: img });
-    } catch (e) {
-        console.error("Error en captcha:", e);
-        res.status(500).json({ success: false, error: "Error conectando al SENIAT. Intente mas tarde." });
-    }
-});
-
-// --- RUTA 3: Verificar RIF ---
-app.post('/api/seniat/verify', async (req, res) => {
-    const { rif, codigo } = req.body;
-    console.log(`Verificando RIF: ${rif} con código: ${codigo}`);
+// 2. Crear Orden (Guardar antes de ir a WhatsApp)
+app.post('/api/orders', async (req, res) => {
+  try {
+    const { customerName, items, total } = req.body;
     
-    try {
-        const resultado = await consultarRif(rif, codigo);
-        res.json(resultado);
-    } catch (e) {
-        console.error("Error en verificación:", e);
-        res.status(500).json({ success: false, error: "Error interno verificando RIF." });
+    const newOrder = new Order({
+      customerName,
+      items,
+      total
+    });
+
+    await newOrder.save();
+    res.status(201).json({ success: true, orderId: newOrder._id });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 3. Validar Código Mayorista (Simple)
+app.post('/api/validate-code', (req, res) => {
+    const { codigo } = req.body;
+    // En el futuro, esto se buscaría en la colección User
+    const CODIGO_MAESTRO = "GARPAN2025"; 
+    
+    if (codigo && codigo.toUpperCase() === CODIGO_MAESTRO) {
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ success: false });
     }
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-    console.log(`✅ Servidor backend corriendo en http://localhost:${PORT}`);
-    console.log(`📡 Esperando peticiones de React...`);
-});
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));

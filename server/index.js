@@ -56,8 +56,10 @@ app.post('/api/orders', async (req, res) => {
 // 3. Validar Código Mayorista (Simple)
 app.post('/api/validate-code', (req, res) => {
     const { codigo } = req.body;
-    // En el futuro, esto se buscaría en la colección User
-    const CODIGO_MAESTRO = "GARPAN2025"; 
+    
+    // Ahora leemos la contraseña desde el archivo .env
+    // Si no existe en el .env, usamos una por defecto por seguridad
+    const CODIGO_MAESTRO = process.env.WHOLESALE_CODE || "GARPAN2025"; 
     
     if (codigo && codigo.toUpperCase() === CODIGO_MAESTRO) {
         res.json({ success: true });

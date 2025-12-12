@@ -3,7 +3,7 @@ const Product = require('./models/Product');
 const { products } = require('./productsData'); // Tu archivo actual de datos
 
 // Configuración rápida de conexión
-const MONGO_URI = 'mongodb://127.0.0.1:27017/garpan_db';
+const MONGO_URI = 'mongodb+srv://rr490233:1234@cluster0.6cjln.mongodb.net/garpan_db?appName=Cluster0';
 
 const seedProducts = async () => {
   try {

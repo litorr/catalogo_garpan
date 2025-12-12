@@ -2,127 +2,120 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
+import Contact from './components/Contact';
 import CartModal from './components/CartModal';
-import Contact from './components/Contact'; 
-import API_URL from './config';
+import AccessModal from './components/AccessModal';
+import API_URL from './config'; // Importante: URL dinámica
 import './App.css';
 
 function App() {
-
+  // --- ESTADOS ---
+  const [products, setProducts] = useState([]); // Productos de la BD
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [category, setCategory] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [isWholesale, setIsWholesale] = useState(false);
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [wholesalerName, setWholesalerName] = useState('');
-  
-  // Estado para productos traídos de la BD
-  const [products, setProducts] = useState([]);
-  
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // 1. Cargar productos
+  // --- 1. CARGAR PRODUCTOS DESDE LA API ---
   useEffect(() => {
     fetch(`${API_URL}/api/products`)
       .then(res => res.json())
-      .then(data => {
-        setProducts(data);
-        setFilteredProducts(data);
-        // Lógica simple para "Más vendidos": Tomamos los primeros 6
-        setBestSellers(data.slice(0, 6)); 
-      })
+      .then(data => setProducts(data))
       .catch(err => console.error("Error cargando productos:", err));
   }, []);
 
-  // 2. Filtrado (igual que antes)
-  useEffect(() => {
-    let result = products;
-    if (category !== 'Todos') {
-      result = result.filter(p => p.categoria && p.categoria.toLowerCase() === category.toLowerCase());
-    }
-    if (searchTerm) {
-      const lowerTerm = searchTerm.toLowerCase();
-      result = result.filter(p => 
-        p.title.toLowerCase().includes(lowerTerm) || 
-        (p.description && p.description.toLowerCase().includes(lowerTerm))
-      );
-    }
-    setFilteredProducts(result);
-  }, [category, searchTerm, products]);
+  // --- 2. LÓGICA DE FILTRADO (LO QUE FALTABA) ---
+  const filteredProducts = products.filter((product) => {
+    // 1. Filtro por Categoría
+    const matchesCategory = category === 'Todos' || product.categoria === category;
+    
+    // 2. Filtro por Buscador (Texto)
+    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
 
-  // --- HANDLERS (igual que antes) ---
-  const handleSearch = (term) => setSearchTerm(term);
-  
-  const handleCategorySelect = (cat) => {
-    setCategory(cat);
-    document.getElementById('todos-los-productos')?.scrollIntoView({ behavior: 'smooth' });
-  };
+    return matchesCategory && matchesSearch;
+  });
 
-  const handleScrollTo = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) element.scrollIntoView({ behavior: 'smooth' });
-  };
+  // (Opcional) Productos Destacados / Más Vendidos (usamos los primeros 4 por defecto)
+  const bestSellers = products.slice(0, 4);
 
+  // --- 3. FUNCIONES DEL CARRITO ---
   const addToCart = (product) => {
-    setCart(prev => {
-      const exists = prev.find(item => item.id === product.id);
-      if (exists) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.id === product.id || item._id === product._id);
+      if (existingItem) {
+        return prevCart.map((item) =>
+          (item.id === product.id || item._id === product._id) 
+            ? { ...item, quantity: item.quantity + 1 } 
+            : item
+        );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      // Aseguramos que tenga un ID único (MongoDB usa _id, React prefiere id)
+      return [...prevCart, { ...product, id: product._id || product.id, quantity: 1 }];
     });
-    // setIsCartOpen(true); // Comentado para no abrir el carrito cada vez
+    setIsCartOpen(true);
   };
 
-  const removeFromCart = (id) => setCart(prev => prev.filter(item => item.id !== id));
-  
+  const removeFromCart = (id) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  };
+
   const updateQuantity = (id, change) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQty = Math.max(1, item.quantity + change);
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    }).filter(Boolean));
+    setCart((prevCart) =>
+      prevCart.map((item) => {
+        if (item.id === id) {
+          const newQuantity = item.quantity + change;
+          return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+        }
+        return item;
+      })
+    );
   };
 
   const clearCart = () => {
     setCart([]);
   };
 
-  const handleModeChange = (mode) => {
-    if (mode === 'mayor' && !isWholesale) setIsSeniatOpen(true);
-    else if (mode === 'detal') {
-      setIsWholesale(false);
-      setWholesalerName('');
-    }
-  };
-
+  // --- 4. RENDERIZADO ---
   return (
     <div className="App">
       <Header 
-        isWholesale={isWholesale} 
-        onModeChange={handleModeChange} 
+        isWholesale={isWholesale}
+        onModeChange={(mode) => {
+          if (mode === 'mayor' && !isWholesale) setIsAccessModalOpen(true);
+          if (mode === 'detal') {
+            setIsWholesale(false);
+            setWholesalerName('');
+          }
+        }}
         userName={wholesalerName}
-        cartCount={cart.reduce((a, b) => a + b.quantity, 0)}
+        cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
         onOpenCart={() => setIsCartOpen(true)}
-        onCategorySelect={handleCategorySelect}
-        onScrollTo={handleScrollTo}
+        onCategorySelect={setCategory}
+        onScrollTo={(id) => {
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
       />
-      
-      <Hero onSearch={handleSearch} />
-      
-      <main>
-        {/* SECCIÓN 1: TODOS LOS PRODUCTOS */}
-        <ProductGrid 
-          sectionId="todos-los-productos"
-          title={isWholesale ? 'Catálogo al Mayor' : 'Todos los Productos'}
-          products={filteredProducts}
-          isWholesale={isWholesale} 
-          onAddToCart={addToCart} 
-        />
 
-        {/* SECCIÓN 2: MÁS VENDIDOS (Reutilizamos ProductGrid) */}
+      <Hero 
+        onSearch={setSearchTerm} 
+        category={category}
+      />
+
+      {/* SECCIÓN PRINCIPAL DE PRODUCTOS (Filtrados) */}
+      <ProductGrid 
+        products={filteredProducts} // <--- AQUÍ SE USA LA VARIABLE
+        isWholesale={isWholesale} 
+        onAddToCart={addToCart}
+        sectionId="catalogo"
+        title={category === 'Todos' ? 'Catálogo Completo' : `Categoría: ${category}`}
+      />
+
+      {/* SECCIÓN MÁS VENDIDOS (Solo si no estamos buscando) */}
+      {category === 'Todos' && !searchTerm && (
         <ProductGrid 
           sectionId="mas-vendidos"
           title="Productos Más Vendidos"
@@ -130,16 +123,9 @@ function App() {
           isWholesale={isWholesale} 
           onAddToCart={addToCart} 
         />
-      </main>
+      )}
 
-      {/* SECCIÓN 3: CONTACTO */}
       <Contact />
-
-      <footer style={{textAlign: 'center', padding: '1rem', color: '#777', borderTop: '1px solid #eee'}}>
-        <p>&copy; 2025 GARPAN. Todos los derechos reservados.</p>
-      </footer>
-
-    
 
       <CartModal 
         isOpen={isCartOpen}
@@ -147,7 +133,17 @@ function App() {
         cartItems={cart}
         onRemove={removeFromCart}
         onUpdateQuantity={updateQuantity}
-        onClearCart={clearCart} 
+        onClearCart={clearCart}
+      />
+
+      <AccessModal 
+        isOpen={isAccessModalOpen}
+        onClose={() => setIsAccessModalOpen(false)}
+        onVerified={() => {
+          setIsWholesale(true);
+          setWholesalerName('Cliente Mayorista');
+          alert("¡Código aceptado! Precios de mayorista activados.");
+        }}
       />
     </div>
   );

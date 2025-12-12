@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_URL from '../config';
 
 const ProductManager = () => {
   const [products, setProducts] = useState([]);
@@ -10,7 +11,7 @@ const ProductManager = () => {
   // Cargar productos
   const loadProducts = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/products');
+      const res = await fetch('${API_URL}/api/products');
       const data = await res.json();
       setProducts(data);
     } catch (error) {
@@ -31,8 +32,8 @@ const ProductManager = () => {
     const payload = { ...formData, price: cleanPrice };
     
     const url = editingId 
-      ? `http://localhost:3001/api/products/${editingId}` 
-      : 'http://localhost:3001/api/products';
+      ? `${API_URL}/api/products/${editingId}` 
+      : '${API_URL}/api/products';
     
     const method = editingId ? 'PUT' : 'POST';
 

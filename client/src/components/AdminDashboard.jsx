@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProductManager from './ProductManager'; // <--- IMPORTAR
+import ProductManager from './ProductManager'; 
+import API_URL from '../config';
 
 const AdminDashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -12,7 +13,7 @@ const AdminDashboard = () => {
   const fetchOrders = () => {
     const token = localStorage.getItem('adminToken');
 
-    fetch('http://localhost:3001/api/orders', {
+    fetch('${API_URL}/api/orders', {
       headers: { 'Authorization': `Bearer ${token}` } 
     })
    
@@ -34,7 +35,7 @@ const AdminDashboard = () => {
  const updateOrderStatus = async (id, newStatus) => {
     const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`http://localhost:3001/api/orders/${id}/status`, {
+      const res = await fetch(`${API_URL}/api/orders/${id}/status`, {
         method: 'PUT',
         headers: { 
             'Content-Type': 'application/json',

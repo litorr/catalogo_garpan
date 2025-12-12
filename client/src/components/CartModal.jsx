@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/CartModal.css';
 
 const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onClearCart }) => {
   const [clientName, setClientName] = useState('');
@@ -86,9 +87,13 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
             cartItems.map((item) => (
               <div key={item.id} className="cart-item">
                 <img 
-                  src={item.image ? `/${item.image}` : '/placeholder.png'} 
-                  alt={item.title} 
-                  onError={(e) => {e.target.src = 'https://via.placeholder.com/60'}}
+                  src={
+                    product.image && product.image.startsWith('uploads') 
+                      ? `http://localhost:3001/${product.image}` // Imagen subida (Backend)
+                      : `/${product.image}` // Imagen local (Frontend/Public)
+                  } 
+                  alt={product.title} 
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/200'; }}
                 />
                 <div className="cart-item-details">
                   <div className="cart-item-title">{item.title}</div>

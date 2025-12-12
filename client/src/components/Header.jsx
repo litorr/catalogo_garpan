@@ -1,64 +1,67 @@
 import React, { useState } from 'react';
-
-const Header = ({ isWholesale, onModeChange, userName, cartCount, onOpenCart}) => {
+import '../styles/Header.css';
+const Header = ({ isWholesale, onModeChange, userName, cartCount, onOpenCart, onCategorySelect, onScrollTo }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Función para alternar el menú en móvil
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const categories = [
+    { label: 'Todos', value: 'Todos' },
+    { label: 'Repostería', value: 'reposteria' },
+    { label: 'Confitería', value: 'confiteria' },
+    { label: 'Helados', value: 'helados' },
+    { label: 'Misceláneos', value: 'miscelaneos' },
+    { label: 'Plásticos', value: 'plasticos' },
+    { label: 'Frutos Secos', value: 'frutos' },
+    { label: 'Esencias', value: 'esencias' },
+    { label: 'Bebidas', value: 'bebidas' }
+  ];
+
+  const handleCategoryClick = (catValue) => {
+    onCategorySelect(catValue);
+    setIsMenuOpen(false); // Cerrar menú al seleccionar
+    setIsDropdownOpen(false);
+  };
+
+  const handleScrollClick = (sectionId) => {
+    onScrollTo(sectionId);
+    setIsMenuOpen(false); // Cerrar menú al navegar
+  };
 
   return (
     <header>
       <div className="logo">
-        <a href="/">
-          {/* Asegúrate de que logo.png esté en la carpeta public de React */}
-          <img src="/logo.png" alt="Logo GARPAN" />
-        </a>
+        <img 
+          src="/logo.png" 
+          alt="Logo" 
+          style={{cursor:'pointer', width: '80px'}} 
+          onClick={() => window.location.reload()}
+        />
       </div>
 
       <nav>
-        {/* Botón Hamburger para móvil */}
-        <div 
-          className="hamburger" 
-          onClick={toggleMenu}
-          style={{ display: window.innerWidth <= 768 ? 'flex' : 'none' }}
-        >
-          <span></span><span></span><span></span>
+        {/* Botón Hamburguesa (El CSS controla su visibilidad) */}
+        <div className="hamburger" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'}`} style={{fontSize: '1.5rem'}}></i>
         </div>
 
+        {/* Menú de Navegación */}
         <div className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
+          
           <div className="controls-container">
-
-            {/* Selector de Modo */}
-
             <div className="modo-selector">
-              <button 
-                className={`modo-btn ${!isWholesale ? 'active' : ''}`} 
-                onClick={() => onModeChange('detal')}
-              >
-                Al Detal
-              </button>
-
-              <button 
-                className={`modo-btn ${isWholesale ? 'active' : ''}`} 
-                onClick={() => onModeChange('mayor')}
-              >
-                Al Mayor
-              </button>
-
+              <button className={`modo-btn ${!isWholesale ? 'active' : ''}`} onClick={() => onModeChange('detal')}>Al Detal</button>
+              <button className={`modo-btn ${isWholesale ? 'active' : ''}`} onClick={() => onModeChange('mayor')}>Al Mayor</button>
             </div>
 
-            {/* Icono de Carrito (Placeholder para futura lógica) */}
-            <div className="cart-icon-container" onClick={onOpenCart}>
+            <div className="cart-icon-container" onClick={onOpenCart} style={{cursor: 'pointer'}}>
               <i className="fas fa-shopping-cart"></i>
               <span className="cart-count">{cartCount}</span>
             </div>
           </div>
 
-          {/* Enlaces de Navegación */}
           <ul className="nav-links">
             <li 
-              className="dropdown" 
+              className="dropdown"
               onMouseEnter={() => setIsDropdownOpen(true)}
               onMouseLeave={() => setIsDropdownOpen(false)}
             >
@@ -66,25 +69,29 @@ const Header = ({ isWholesale, onModeChange, userName, cartCount, onOpenCart}) =
                 Categorías <i className="fas fa-chevron-down"></i>
               </button>
               
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="dropdown-menu">
-                  {['Todos', 'Repostería', 'Confitería', 'Helados', 'Misceláneos'].map((cat) => (
-                    <button key={cat} className="dropdown-item">
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`} style={{display: isDropdownOpen ? 'flex' : 'none'}}>
+                {categories.map((cat) => (
+                  <button key={cat.value} className="dropdown-item" onClick={() => handleCategoryClick(cat.value)}>
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </li>
             
-            <li><button className="nav-btn">Más Vendidos</button></li>
-            <li><button className="nav-btn">Contacto</button></li>
+            <li>
+              <button className="nav-btn" onClick={() => handleScrollClick('mas-vendidos')}>
+                Más Vendidos
+              </button>
+            </li>
+            <li>
+              <button className="nav-btn" onClick={() => handleScrollClick('contacto')}>
+                Contacto
+              </button>
+            </li>
           </ul>
 
-          {/* Mensaje de bienvenida si es mayorista */}
           {isWholesale && userName && (
-            <div style={{ marginLeft: '1rem', color: '#1f67c5', fontWeight: 'bold', fontSize: '0.9rem' }}>
+            <div className="user-welcome" style={{ marginLeft: '10px', color: '#1f67c5', fontSize: '0.8rem', fontWeight: 'bold' }}>
               <i className="fas fa-user-check"></i> {userName}
             </div>
           )}

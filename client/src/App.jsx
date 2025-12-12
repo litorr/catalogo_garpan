@@ -18,7 +18,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   
   const [isWholesale, setIsWholesale] = useState(false);
-  const [isSeniatOpen, setIsSeniatOpen] = useState(false);
+
   const [wholesalerName, setWholesalerName] = useState('');
   
   const [cart, setCart] = useState([]);
@@ -142,15 +142,7 @@ function App() {
         <p>&copy; 2025 GARPAN. Todos los derechos reservados.</p>
       </footer>
 
-      {/* Modales */}
-      <SeniatModal 
-        isOpen={isSeniatOpen} 
-        onClose={() => setIsSeniatOpen(false)}
-        onVerified={(nombre) => {
-          setIsWholesale(true);
-          setWholesalerName(nombre);
-        }}
-      />
+    
 
       <CartModal 
         isOpen={isCartOpen}

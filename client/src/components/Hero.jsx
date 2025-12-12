@@ -1,5 +1,5 @@
 import React from 'react';
-
+import '../styles/Hero.css';
 const Hero = ({ onSearch }) => {
   return (
     <section id="hero">

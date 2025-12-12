@@ -1,5 +1,5 @@
 import React from 'react';
-
+import '../styles/ProductGrid.css';
 // Ahora aceptamos 'title' y 'sectionId' como propiedades nuevas
 const ProductGrid = ({ products, isWholesale, onAddToCart, title, sectionId }) => {
   
@@ -24,11 +24,15 @@ const ProductGrid = ({ products, isWholesale, onAddToCart, title, sectionId }) =
             <h3 className="product-title">{product.title}</h3>
             
             <img 
-              src={product.image ? `/${product.image}` : '/placeholder.png'} 
+              src={
+                product.image && product.image.startsWith('uploads') 
+                  ? `http://localhost:3001/${product.image}` // Imagen subida (Backend)
+                  : `/${product.image}` // Imagen local (Frontend/Public)
+              } 
               alt={product.title} 
               onError={(e) => { e.target.src = 'https://via.placeholder.com/200'; }}
             />
-            
+                        
             <div className="product-info">
               <p className="product-desc">{product.description}</p>
               

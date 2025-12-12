@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   const fetchOrders = () => {
     const token = localStorage.getItem('adminToken');
 
-    fetch('${API_URL}/api/orders', {
+    fetch(`${API_URL}/api/orders`, {
       headers: { 'Authorization': `Bearer ${token}` } 
     })
    

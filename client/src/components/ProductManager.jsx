@@ -72,7 +72,7 @@ const ProductManager = () => {
     const token = localStorage.getItem('adminToken');
     if (!window.confirm('¿Seguro que quieres eliminar este producto?')) return;
     
-    await fetch(`http://localhost:3001/api/products/${id}`, { 
+    await fetch(`${API_URL}/api/products/${id}`,{ 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -89,7 +89,7 @@ const ProductManager = () => {
     formDataImg.append('image', file);
 
     try {
-      const res = await fetch('http://localhost:3001/api/upload', {
+      const res = await fetch(`${API_URL}/api/upload`, {
       method: 'POST',
       headers: { 
           'Authorization': `Bearer ${token}` // <--- IMPORTANTE (No lleva Content-Type aquí)

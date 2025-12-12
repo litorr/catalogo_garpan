@@ -1,5 +1,7 @@
 import React from 'react';
 import '../styles/ProductGrid.css';
+import API_URL from '../config';
+
 // Ahora aceptamos 'title' y 'sectionId' como propiedades nuevas
 const ProductGrid = ({ products, isWholesale, onAddToCart, title, sectionId }) => {
   
@@ -26,7 +28,7 @@ const ProductGrid = ({ products, isWholesale, onAddToCart, title, sectionId }) =
             <img 
               src={
                 product.image && product.image.startsWith('uploads') 
-                  ? `http://localhost:3001/${product.image}` // Imagen subida (Backend)
+                  ? `${API_URL}/${product.image}` // Imagen subida (Backend)
                   : `/${product.image}` // Imagen local (Frontend/Public)
               } 
               alt={product.title} 

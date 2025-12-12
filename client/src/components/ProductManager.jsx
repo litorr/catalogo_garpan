@@ -33,7 +33,7 @@ const ProductManager = () => {
     
     const url = editingId 
       ? `${API_URL}/api/products/${editingId}` 
-      : '${API_URL}/api/products';
+      : `${API_URL}/api/products`;
     
     const method = editingId ? 'PUT' : 'POST';
 
@@ -92,7 +92,7 @@ const ProductManager = () => {
       const res = await fetch(`${API_URL}/api/upload`, {
       method: 'POST',
       headers: { 
-          'Authorization': `Bearer ${token}` // <--- IMPORTANTE (No lleva Content-Type aquí)
+          'Authorization': `Bearer ${token}` 
       },
       body: formDataImg
       });
@@ -209,7 +209,7 @@ const ProductManager = () => {
                 <img 
                   src={
                     p.image && p.image.startsWith('uploads') 
-                      ? `http://localhost:3001/${p.image}` 
+                      ? `${API_URL}/${p.image}` 
                       : `/${p.image}`
                   } 
                   alt={p.title} 

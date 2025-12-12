@@ -3,30 +3,27 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
 import CartModal from './components/CartModal';
-import Contact from './components/Contact'; // <--- Importamos Contacto
+import Contact from './components/Contact'; 
+import API_URL from './config';
 import './App.css';
 
 function App() {
-  const [products, setProducts] = useState([]); 
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  
-  // Variables para lógica de "Más Vendidos"
-  const [bestSellers, setBestSellers] = useState([]);
 
-  // Estados de control
   const [category, setCategory] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
-  
   const [isWholesale, setIsWholesale] = useState(false);
-
+  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [wholesalerName, setWholesalerName] = useState('');
+  
+  // Estado para productos traídos de la BD
+  const [products, setProducts] = useState([]);
   
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // 1. Cargar productos
   useEffect(() => {
-    fetch('http://localhost:3001/api/products')
+    fetch(`${API_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);

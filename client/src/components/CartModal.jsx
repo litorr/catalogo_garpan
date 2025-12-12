@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/CartModal.css';
+import API_URL from '../config';
 
 const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onClearCart }) => {
   const [clientName, setClientName] = useState('');
@@ -30,7 +31,7 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/orders', {
+      const response = await fetch('${API_URL}/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)

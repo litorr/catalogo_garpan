@@ -19,7 +19,6 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
 
     setLoading(true);
 
-    // 1. Preparar datos para la Base de Datos
     const orderData = {
       customerName: clientName,
       total: total,
@@ -31,7 +30,6 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
     };
 
     try {
-      // 2. Guardar en MongoDB (Backend)
       const response = await fetch('http://localhost:3001/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,9 +39,8 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
       const data = await response.json();
 
       if (data.success) {
-        // 3. Generar mensaje de WhatsApp con el ID de orden
         let message = `Hola, soy *${clientName}*.\n`;
-        message += `Deseo confirmar mi pedido Web *#${data.orderId.slice(-6)}*:\n\n`; // Usamos los últimos 6 caracteres del ID
+        message += `Deseo confirmar mi pedido Web *#${data.orderId.slice(-6)}*:\n\n`;
         
         cartItems.forEach(item => {
             const price = parseFloat(item.price.replace('$', ''));
@@ -53,15 +50,14 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
 
         message += `\n*TOTAL A PAGAR: $${total.toFixed(2)}*`;
         
-        // 4. Abrir WhatsApp y Limpiar
         const phoneNumber = "584141914478"; 
         window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
         
-        onClearCart(); // Vaciar carrito
-        setClientName(''); // Limpiar nombre
-        onClose(); // Cerrar modal
+        onClearCart();
+        setClientName('');
+        onClose();
       } else {
-        alert('Hubo un error guardando tu pedido. Intenta de nuevo.');
+        alert('Hubo un error guardando tu pedido.');
       }
 
     } catch (error) {
@@ -86,15 +82,18 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
           ) : (
             cartItems.map((item) => (
               <div key={item.id} className="cart-item">
+                
+                {/* --- CORRECCIÓN AQUÍ: Usamos 'item' en lugar de 'product' --- */}
                 <img 
                   src={
-                    product.image && product.image.startsWith('uploads') 
-                      ? `http://localhost:3001/${product.image}` // Imagen subida (Backend)
-                      : `/${product.image}` // Imagen local (Frontend/Public)
+                    item.image && item.image.startsWith('uploads') 
+                      ? `http://localhost:3001/${item.image}` 
+                      : `/${item.image}`
                   } 
-                  alt={product.title} 
-                  onError={(e) => { e.target.src = 'https://via.placeholder.com/200'; }}
+                  alt={item.title} 
+                  onError={(e) => {e.target.src = 'https://via.placeholder.com/60'}}
                 />
+
                 <div className="cart-item-details">
                   <div className="cart-item-title">{item.title}</div>
                   <div className="cart-item-price">{item.price}</div>
@@ -120,7 +119,7 @@ const CartModal = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity, onC
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 placeholder="Ej: Juan Pérez"
-                className="seniat-input" // Reusamos la clase de estilo bonita
+                className="seniat-input"
                 style={{width: '100%', padding: '10px'}}
               />
             </div>

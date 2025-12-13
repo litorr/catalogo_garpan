@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
+import Header from './components/common/Header';
+import Hero from './components/common/Hero';
 import ProductGrid from './components/ProductGrid';
-import Contact from './components/Contact';
+import Contact from './components/common/Contact';
 import CartModal from './components/CartModal';
 import AccessModal from './components/AccessModal';
-import API_URL from './config'; // Importante: URL dinámica
+import { getProducts } from './services/productService';
 import './App.css';
+
 
 function App() {
   // --- ESTADOS ---
-  const [products, setProducts] = useState([]); // Productos de la BD
+  const [products, setProducts] = useState([]); 
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [category, setCategory] = useState('Todos');
@@ -19,40 +20,39 @@ function App() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [wholesalerName, setWholesalerName] = useState('');
 
-  // --- 1. CARGAR PRODUCTOS DESDE LA API ---
+  // --- CARGAR PRODUCTOS (Usando Servicio) ---
   useEffect(() => {
-    fetch(`${API_URL}/api/products`)
-      .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Error cargando productos:", err));
+    const loadData = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error cargando productos:", err);
+      }
+    };
+    loadData();
   }, []);
 
-  // --- 2. LÓGICA DE FILTRADO (LO QUE FALTABA) ---
+  // --- LÓGICA DE FILTRADO ---
   const filteredProducts = products.filter((product) => {
-    // 1. Filtro por Categoría
     const matchesCategory = category === 'Todos' || product.categoria === category;
-    
-    // 2. Filtro por Buscador (Texto)
     const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
-
     return matchesCategory && matchesSearch;
   });
 
-  // (Opcional) Productos Destacados / Más Vendidos (usamos los primeros 4 por defecto)
   const bestSellers = products.slice(0, 4);
 
-  // --- 3. FUNCIONES DEL CARRITO ---
+  // --- FUNCIONES DEL CARRITO ---
   const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id || item._id === product._id);
+      const existingItem = prevCart.find((item) => (item.id || item._id) === (product.id || product._id));
       if (existingItem) {
         return prevCart.map((item) =>
-          (item.id === product.id || item._id === product._id) 
+          (item.id || item._id) === (product.id || product._id)
             ? { ...item, quantity: item.quantity + 1 } 
             : item
         );
       }
-      // Aseguramos que tenga un ID único (MongoDB usa _id, React prefiere id)
       return [...prevCart, { ...product, id: product._id || product.id, quantity: 1 }];
     });
     setIsCartOpen(true);
@@ -78,7 +78,7 @@ function App() {
     setCart([]);
   };
 
-  // --- 4. RENDERIZADO ---
+  // --- RENDERIZADO ---
   return (
     <div className="App">
       <Header 
@@ -100,21 +100,16 @@ function App() {
         }}
       />
 
-      <Hero 
-        onSearch={setSearchTerm} 
-        category={category}
-      />
+      <Hero onSearch={setSearchTerm} category={category} />
 
-      {/* SECCIÓN PRINCIPAL DE PRODUCTOS (Filtrados) */}
       <ProductGrid 
-        products={filteredProducts} // <--- AQUÍ SE USA LA VARIABLE
+        products={filteredProducts} 
         isWholesale={isWholesale} 
         onAddToCart={addToCart}
         sectionId="catalogo"
         title={category === 'Todos' ? 'Catálogo Completo' : `Categoría: ${category}`}
       />
 
-      {/* SECCIÓN MÁS VENDIDOS (Solo si no estamos buscando) */}
       {category === 'Todos' && !searchTerm && (
         <ProductGrid 
           sectionId="mas-vendidos"

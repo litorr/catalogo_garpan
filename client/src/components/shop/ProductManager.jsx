@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import API_URL from '../config';
+import API_URL from '../config'; // Solo lo usamos para mostrar la imagen <img src>
+import { 
+  getProducts, 
+  createProduct, 
+  updateProduct, 
+  deleteProduct, 
+  uploadImage 
+} from '../services/productService'; // <--- IMPORTANDO SERVICIOS
+
 
 const ProductManager = () => {
   const [products, setProducts] = useState([]);
@@ -11,8 +19,7 @@ const ProductManager = () => {
   // Cargar productos
   const loadProducts = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/products`);
-      const data = await res.json();
+      const data = await getProducts();
       setProducts(data);
     } catch (error) {
       console.error("Error cargando productos:", error);
@@ -21,84 +28,15 @@ const ProductManager = () => {
 
   useEffect(() => { loadProducts(); }, []);
 
-  // Manejar formulario
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    const token = localStorage.getItem('adminToken');
-    // Si hay precio con símbolo $, lo limpiamos, si no, lo enviamos tal cual
-    const cleanPrice = parseFloat(formData.price.toString().replace('$', ''));
-    
-    const payload = { ...formData, price: cleanPrice };
-    
-    const url = editingId 
-      ? `${API_URL}/api/products/${editingId}` 
-      : `${API_URL}/api/products`;
-    
-    const method = editingId ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method: method,
-      headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // <--- IMPORTANTE
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      alert(editingId ? 'Producto actualizado' : 'Producto creado');
-      setFormData({ title: '', description: '', price: '', category: 'miscelaneos', image: 'productos/placeholder.png' });
-      setEditingId(null);
-      loadProducts();
-    }
-  };
-
-  // Cargar datos en el formulario para editar
-  const handleEdit = (product) => {
-    setFormData({
-      title: product.title,
-      description: product.description,
-      price: product.price.replace('$', ''), // Quitamos el $ para que sea editable
-      category: product.categoria || 'miscelaneos',
-      image: product.image
-    });
-    setEditingId(product.id || product._id);
-    // Scroll arriba
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleDelete = async (id) => {
-    const token = localStorage.getItem('adminToken');
-    if (!window.confirm('¿Seguro que quieres eliminar este producto?')) return;
-    
-    await fetch(`${API_URL}/api/products/${id}`,{ 
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    loadProducts();
-  };
-
-  // Función para subir imagen
+// Subir imagen
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    const token = localStorage.getItem('adminToken');
     if (!file) return;
 
-    const formDataImg = new FormData();
-    formDataImg.append('image', file);
-
     try {
-      const res = await fetch(`${API_URL}/api/upload`, {
-      method: 'POST',
-      headers: { 
-          'Authorization': `Bearer ${token}` 
-      },
-      body: formDataImg
-      });
-      const data = await res.json();
+      const data = await uploadImage(file); // Usando servicio
       if (data.success) {
-        // Guardamos la ruta (ojo: corregimos las barras invertidas de Windows si aparecen)
+        // Limpiamos barras invertidas si vienen de Windows
         const cleanPath = data.filePath.replace(/\\/g, "/");
         setFormData({ ...formData, image: cleanPath });
       }
@@ -107,6 +45,58 @@ const ProductManager = () => {
       alert("Error al subir la imagen");
     }
   };
+
+  // Submit (Crear o Editar)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Limpieza de precio
+    const cleanPrice = parseFloat(formData.price.toString().replace('$', ''));
+    const payload = { ...formData, price: cleanPrice };
+    
+    try {
+      let res;
+      if (editingId) {
+        res = await updateProduct(editingId, payload);
+      } else {
+        res = await createProduct(payload);
+      }
+
+      if (res.success || res.product) {
+        alert(editingId ? 'Producto actualizado' : 'Producto creado');
+        setFormData({ title: '', description: '', price: '', category: 'miscelaneos', image: '' });
+        setEditingId(null);
+        loadProducts();
+      }
+    } catch (error) {
+      alert("Error guardando producto");
+    }
+  };
+
+  // Cargar datos en form
+  const handleEdit = (product) => {
+    setFormData({
+      title: product.title,
+      description: product.description,
+      price: product.price.toString().replace('$', ''),
+      category: product.categoria || 'miscelaneos',
+      image: product.image
+    });
+    setEditingId(product.id || product._id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Eliminar
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Seguro que quieres eliminar este producto?')) return;
+    try {
+      await deleteProduct(id);
+      loadProducts();
+    } catch (error) {
+      alert("Error al eliminar");
+    }
+  };
+
 
   return (
     <div style={{ marginTop: '2rem' }}>

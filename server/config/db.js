@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    // Usaremos la variable de entorno o una local por defecto
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`✅ MongoDB Conectado: ${conn.connection.host}`);
+    const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/garpan_db";
+    await mongoose.connect(mongoUri);
+    console.log('✅ MongoDB Conectado Exitosamente');
   } catch (error) {
-    console.error(`🔴 Error conectando a MongoDB: ${error.message}`);
-    process.exit(1);
+    console.error('❌ Error MongoDB:', error);
+    process.exit(1); // Detener servidor si falla la DB
   }
 };
 

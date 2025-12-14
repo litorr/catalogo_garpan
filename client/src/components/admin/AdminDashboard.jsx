@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProductManager from '../ProductManager'; 
+import ProductManager from '../shop/ProductManager.jsx'; 
 import { getOrders, updateOrderStatus } from '../services/orderService'; // <--- USANDO SERVICIO
 
 const AdminDashboard = () => {

@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom/client'
 // CAMBIO 1: Importamos HashRouter en lugar de BrowserRouter
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import App from './App.jsx'
-import AdminDashboard from './components/AdminDashboard.jsx'
-import AdminLogin from './components/AdminLogin.jsx'
+import AdminDashboard from './components/admin/AdminDashboard.jsx'
+import AdminLogin from './components/admin/AdminLogin.jsx'
 import './App.css'
 
 const PrivateRoute = ({ children }) => {

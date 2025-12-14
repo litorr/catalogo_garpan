@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/common/Header';
 import Hero from './components/common/Hero';
-import ProductGrid from './components/ProductGrid';
+import ProductGrid from './components/shop/ProductGrid';
 import Contact from './components/common/Contact';
-import CartModal from './components/CartModal';
-import AccessModal from './components/AccessModal';
+import CartModal from './components/shop/CartModal';
+import AccessModal from './components/shop/AccessModal';
 import { getProducts } from './services/productService';
 import './App.css';
 
